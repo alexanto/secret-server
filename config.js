@@ -7,6 +7,7 @@ const config = {
     mongoUser: process.env.MONGO_USER || "secret-server",
     mongoPwd: process.env.MONGO_PWD,
     dbName: process.env.DB_NAME || "secrets",
+    encryptKey: process.env.ENCRYPT_KEY,
 };
 
 module.exports = config;

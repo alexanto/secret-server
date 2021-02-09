@@ -1,9 +1,31 @@
 const dayjs = require('dayjs');
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const mongo = require('../db/mongo');
 const Secret = require('../db/secret');
-const asyncHandler = require('../helpers/asyncHander')
+const asyncHandler = require('../helpers/asyncHander');
+const config = require('../config');
+
+const {encryptKey} = config;
+
+const encrypt = (text) => {
+    const iv = crypto.randomBytes(16);
+    console.log(encryptKey);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptKey), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+};
+
+
+const decrypt = (text, iv) => {
+    const encryptedText = Buffer.from(text, 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptKey), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
 
 router.get('/:hash', asyncHandler(async (req, res) => {
     const secrets = new Secret(mongo);
@@ -15,7 +37,7 @@ router.get('/:hash', asyncHandler(async (req, res) => {
         throw error;
     }
 
-    const {remainingViews, expiresAt, createdAt} = secret;
+    const {remainingViews, expiresAt, createdAt, secretText, iv} = secret;
 
     if (remainingViews === 0) {
         const error = new Error(`Maximum views for secret ${hash} exhausted, no more views possible`);
@@ -38,8 +60,13 @@ router.get('/:hash', asyncHandler(async (req, res) => {
         throw error;
     }
 
+    const decryptedSecret = decrypt(secretText, iv);
+
+    const {iv: initializationVector, ...rest} = secret;
+
     res.json({
-        ...secret,
+        ...rest,
+        secretText: decryptedSecret,
         remainingViews: remainingViews -1,
     });
 }));
