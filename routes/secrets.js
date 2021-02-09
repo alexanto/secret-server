@@ -5,26 +5,10 @@ const router = express.Router();
 const mongo = require('../db/mongo');
 const Secret = require('../db/secret');
 const asyncHandler = require('../helpers/asyncHander');
-const config = require('../config');
+const {encrypt, decrypt} = require('../helpers/encrypt');
 
-const {encryptKey} = config;
-
-const encrypt = (text) => {
-    const iv = crypto.randomBytes(16);
-    console.log(encryptKey);
-    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptKey), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
-};
-
-
-const decrypt = (text, iv) => {
-    const encryptedText = Buffer.from(text, 'hex');
-    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptKey), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+const isEmpty = (value) => {
+    return typeof value === "undefined" || value === null || value === "";
 }
 
 router.get('/:hash', asyncHandler(async (req, res) => {
@@ -48,7 +32,7 @@ router.get('/:hash', asyncHandler(async (req, res) => {
     const createdDate = dayjs(createdAt);
     const minutesSinceCreation = dayjs().diff(createdDate, 'minute');
 
-    if (expiresAt && expiresAt < minutesSinceCreation) {
+    if (expiresAt && expiresAt != 0 && expiresAt < minutesSinceCreation) {
         const error = new Error(`Secret ${hash} is expired, can no longer be viewed`);
         error.statusCode = 403;
         throw error;
@@ -62,7 +46,7 @@ router.get('/:hash', asyncHandler(async (req, res) => {
 
     const decryptedSecret = decrypt(secretText, iv);
 
-    const {iv: initializationVector, ...rest} = secret;
+    const {iv: initializationVector, _id: id, ...rest} = secret;
 
     res.json({
         ...rest,
@@ -70,5 +54,48 @@ router.get('/:hash', asyncHandler(async (req, res) => {
         remainingViews: remainingViews -1,
     });
 }));
+
+router.post('/', asyncHandler(async(req, res) => {
+    const {body} = req;
+    const {secret, expireAfterViews, expireAfter} = body;
+
+    if (isEmpty(secret) || isEmpty(expireAfterViews)) {
+        const error = new Error('A secret and maximum view times must be provided in the request');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const secrets = new Secret(mongo);
+    const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]');
+    const hash = crypto.createHash('sha1', secret).update(currentDate).digest('hex');
+    const encryptedSecret = encrypt(secret);
+    const {encryptedData, iv} = encryptedSecret;
+    const remainingViews = Number(expireAfterViews);
+
+    const newSecret = {
+        hash,
+        secretText: encryptedData,
+        iv,
+        createdAt: currentDate,
+        remainingViews,
+        ...expireAfter && { expiresAt: Number(expireAfter) }, 
+    }
+    
+    const insertResult = await secrets.insertSecret(newSecret);
+
+    if (!insertResult) {
+        const error = new Error('Saving secret to database has failed');
+        error.statusCode = 500;
+        throw error;
+    }
+    
+    res.json({
+        hash,
+        secretText: encryptedData,
+        createdAt: currentDate,
+        remainingViews,
+        ...expireAfter && { expiresAt: Number(expireAfter)}, 
+    });
+}))
 
 module.exports = router;

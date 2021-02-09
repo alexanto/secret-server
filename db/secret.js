@@ -13,6 +13,11 @@ class Secret {
         const response = await this.collection.updateOne(query, newValue);
         return response.result.nModified;
     }
+
+    async insertSecret(secret) {
+        const response = await this.collection.insertOne(secret);
+        return response.result.n;
+    }
 }
 
 module.exports = Secret;
