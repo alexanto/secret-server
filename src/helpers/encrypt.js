@@ -1,9 +1,6 @@
 const crypto = require('crypto');
-const config = require('../config');
 
-const {encryptKey} = config;
-
-const encrypt = (text) => {
+const encrypt = (text, encryptKey) => {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptKey), iv);
     let encrypted = cipher.update(text);
@@ -11,7 +8,7 @@ const encrypt = (text) => {
     return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
 };
 
-const decrypt = (text, iv) => {
+const decrypt = (text, iv, encryptKey) => {
     const encryptedText = Buffer.from(text, 'hex');
     let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptKey), Buffer.from(iv, 'hex'));
     let decrypted = decipher.update(encryptedText);

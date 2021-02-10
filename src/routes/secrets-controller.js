@@ -3,6 +3,9 @@ const Secret = require('../db/secret');
 const mongo = require('../db/mongo');
 const dayjs = require('dayjs');
 const {encrypt, decrypt} = require('../helpers/encrypt');
+const config = require('../config');
+
+const {encryptKey} = config;
 
 const isEmpty = (value) => {
     return typeof value === "undefined" || value === null || value === "";
@@ -41,7 +44,7 @@ const getSecret = async (req, res) => {
         throw error;
     }
 
-    const decryptedSecret = decrypt(secretText, iv);
+    const decryptedSecret = decrypt(secretText, iv, encryptKey);
 
     const {iv: initializationVector, _id: id, ...rest} = secret;
 
@@ -65,7 +68,7 @@ const storeSecret = async (req, res) => {
     const secrets = new Secret(mongo);
     const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]');
     const hash = crypto.createHash('sha1', secret).update(currentDate).digest('hex');
-    const encryptedSecret = encrypt(secret);
+    const encryptedSecret = encrypt(secret, encryptKey);
     const {encryptedData, iv} = encryptedSecret;
     const remainingViews = Number(expireAfterViews);
 
