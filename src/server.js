@@ -10,7 +10,6 @@ const {port} = config;
     } catch (e) {
         console.log('Could not connect to MongoDB database', e);
     }
-    
 
     app.listen(port, () => {
         console.log(`Server is listening on port ${port}`);

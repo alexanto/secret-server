@@ -95,7 +95,6 @@ const storeSecret = async (req, res) => {
     }
 }
 
-
 module.exports = {
     getSecret,
     storeSecret,
