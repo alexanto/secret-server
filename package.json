@@ -1,0 +1,26 @@
+{
+  "name": "secret-server",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexanto/secret-server.git"
+  },
+  "author": "Alexandra Szanto",
+  "license": "ISC",
+  "homepage": "https://github.com/alexanto/secret-server#readme",
+  "dependencies": {
+    "dayjs": "^1.10.4",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.4"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.7"
+  }
+}
