@@ -74,7 +74,7 @@ export default {
   flex-basis: 460px;
   flex-grow: 1;
   padding: 20px;
-  max-width: 600px;
+  max-width: 700px;
   margin-top: 100px;
   min-height: 400px;
 }
