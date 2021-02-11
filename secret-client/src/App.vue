@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <SecretClient msg="Secret Manager"/>
+    <h1>Secret manager</h1>
+    <p>
+      View and store secrets.
+    </p>
+    <SecretClient />
   </div>
 </template>
 
