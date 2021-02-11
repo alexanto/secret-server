@@ -90,7 +90,7 @@ const storeSecret = async (req, res) => {
 
     return {
         hash,
-        secretText: encryptedData,
+        secretText: secret,
         createdAt: currentDate,
         remainingViews,
         ...expireAfter && { expiresAt },  

@@ -152,7 +152,7 @@ describe('secrets-controller', () => {
             });
             const expectedSecret = {
                 hash: expect.any(String),
-                secretText: '123qwe',
+                secretText: '1234',
                 createdAt: '2021-02-11T16:20:09.099+01:00',
                 remainingViews: 15,
                 expiresAt: '2021-02-11T16:25:09.099+01:00'
