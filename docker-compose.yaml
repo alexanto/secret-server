@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  client: 
+    build: ./secret-client
+    image: secret-client:1.0.0
+    ports:
+      - 8080:8080
+    networks:
+      - secret-network
+  server:
+    build: 
+      context: ./server
+      args:
+        - PORT=${PORT}
+    image: secret-server:1.0.0
+    environment: 
+      - PORT=${PORT}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PWD=${MONGO_PWD}
+      - DB_NAME=${DB_NAME}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
+    ports:
+      - 8081:${PORT}
+    networks:
+      - secret-network
+
+networks:
+  secret-network:
+    

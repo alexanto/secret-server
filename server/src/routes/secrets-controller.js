@@ -32,6 +32,7 @@ const getSecret = async (req, res) => {
     const createdDate = dayjs(createdAt);
     const minutesSinceCreation = dayjs().diff(createdDate, 'minute');
 
+
     if (expiresAt && expiresAt != 0 && expiresAt < minutesSinceCreation) {
         const error = new Error(`Secret ${hash} is expired, can no longer be viewed`);
         error.statusCode = 403;
@@ -66,7 +67,7 @@ const storeSecret = async (req, res) => {
     }
 
     const secrets = new Secret(mongo);
-    const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]');
+    const currentDate = dayjs().format('YYYY-MM-DDTHH:mm:ss.sssZ');
     const hash = crypto.createHash('sha1', secret).update(currentDate).digest('hex');
     const encryptedSecret = encrypt(secret, encryptKey);
     const {encryptedData, iv} = encryptedSecret;
