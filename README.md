@@ -10,7 +10,7 @@ Prerequisites:
 
 Running the application:
 
-Create a `.env` file with the following content:
+Create a `.env` file under `server` folder with the following content:
 
 ```
 PORT=8081
@@ -25,8 +25,8 @@ ENCRYPT_KEY="19629fd68202d34dcb79c66de2477eb6"
 From the project root folder, run:
 
 ```
-docker-compose --env-file .env build
-docker-compose --env-file .env up
+docker-compose --env-file ./server/.env build
+docker-compose --env-file ./server/.env up
 ```
 
 Note: Obviously, secrets should NOT be in the readme, I am only including them here, because I had to share them somehow, this is only a test project and I am going to delete the db later.
