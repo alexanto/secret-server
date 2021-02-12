@@ -71,5 +71,5 @@ Hash: e8bb286345b3d205b396dcd630dd12116ea6e2ef
 You can run the unit tests for the server with:
 ```
 cd server
-npm run test
+npm test
 ```
