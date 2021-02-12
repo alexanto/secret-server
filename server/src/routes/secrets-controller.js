@@ -69,7 +69,10 @@ const storeSecret = async (req, res) => {
     const {encryptedData, iv} = encryptedSecret;
     const remainingViews = Number(expireAfterViews);
 
-    const expiresAt = expireAfter ? dayjs(currentDate).add(Number(expireAfter), 'minute').format('YYYY-MM-DDTHH:mm:ss.sssZ') : 0;
+    let expiresAt;
+    if (typeof expireAfter !== "undefined" && Number(expireAfter) !== 0) {
+        expiresAt = dayjs(currentDate).add(Number(expireAfter), 'minute').format('YYYY-MM-DDTHH:mm:ss.sssZ');
+    }
 
     const newSecret = {
         hash,
@@ -77,7 +80,7 @@ const storeSecret = async (req, res) => {
         iv,
         createdAt: currentDate,
         remainingViews,
-        ...expireAfter && { expiresAt }, 
+        ...expiresAt && { expiresAt }, 
     }
     
     const insertResult = await secrets.insertSecret(newSecret);
@@ -93,7 +96,7 @@ const storeSecret = async (req, res) => {
         secretText: secret,
         createdAt: currentDate,
         remainingViews,
-        ...expireAfter && { expiresAt },  
+        ...expiresAt && { expiresAt },  
     }
 }
 
