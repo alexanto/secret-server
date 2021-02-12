@@ -21,7 +21,7 @@ const getSecret = async (req, res) => {
         throw error;
     }
 
-    const {remainingViews, expiresAt, createdAt, secretText, iv} = secret;
+    const {remainingViews, expiresAt, secretText, iv} = secret;
 
     if (remainingViews === 0) {
         const error = new Error(`Maximum views for secret ${hash} exhausted, no more views possible`);
@@ -29,11 +29,7 @@ const getSecret = async (req, res) => {
         throw error;
     }
 
-    const createdDate = dayjs(createdAt);
-    const minutesSinceCreation = dayjs().diff(createdDate, 'minute');
-
-
-    if (expiresAt && expiresAt != 0 && expiresAt < minutesSinceCreation) {
+    if (expiresAt && expiresAt != 0 && dayjs(expiresAt).isBefore(dayjs())) {
         const error = new Error(`Secret ${hash} is expired, can no longer be viewed`);
         error.statusCode = 403;
         throw error;
@@ -73,13 +69,18 @@ const storeSecret = async (req, res) => {
     const {encryptedData, iv} = encryptedSecret;
     const remainingViews = Number(expireAfterViews);
 
+    let expiresAt;
+    if (typeof expireAfter !== "undefined" && Number(expireAfter) !== 0) {
+        expiresAt = dayjs(currentDate).add(Number(expireAfter), 'minute').format('YYYY-MM-DDTHH:mm:ss.sssZ');
+    }
+
     const newSecret = {
         hash,
         secretText: encryptedData,
         iv,
         createdAt: currentDate,
         remainingViews,
-        ...expireAfter && { expiresAt: Number(expireAfter) }, 
+        ...expiresAt && { expiresAt }, 
     }
     
     const insertResult = await secrets.insertSecret(newSecret);
@@ -92,10 +93,10 @@ const storeSecret = async (req, res) => {
 
     return {
         hash,
-        secretText: encryptedData,
+        secretText: secret,
         createdAt: currentDate,
         remainingViews,
-        ...expireAfter && { expiresAt: Number(expireAfter)}, 
+        ...expiresAt && { expiresAt },  
     }
 }
 

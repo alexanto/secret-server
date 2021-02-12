@@ -7,13 +7,15 @@
             <p><b>Secret Text: </b>{{readSecret.secretText}}</p>
             <p><b>Hash: </b>{{readSecret.hash}}</p>
             <p><b>Remaining Views: </b>{{readSecret.remainingViews}}</p>
-            <p v-if="readSecret.expiresAt"><b>Secret expires in: </b>{{countRemainingMinutes(readSecret.expiresAt, readSecret.createdAt)}} minutes</p>
+            <p v-if="readSecret.expiresAt"><b>Secret expires at: </b>{{formatExpiry(readSecret.expiresAt)}}</p>
         </div>
         <p v-if="error" class="error">{{error}}</p>
     </div>
 </template>
 
 <script>
+import dayjs from 'dayjs';
+
 export default {
   name: 'DisplaySecret',
   props: {
@@ -21,12 +23,8 @@ export default {
       error: String,
   },
   methods: {
-      countRemainingMinutes(expiresAt, created) {
-            const today = new Date();
-            const createdAt = new Date(created);
-            const diffMs = (today - createdAt);
-            const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-            return expiresAt - diffMins;
+      formatExpiry(expiresAt) {
+        return dayjs(expiresAt).format('YYYY MM DD HH:mm:ss');
       }
   }
 }

@@ -23,7 +23,7 @@ describe('secrets-controller', () => {
                 secretText: '123abc',
                 createdAt: '2021-02-10T09:36:12+01:00Z',
                 remainingViews: 11,
-                expiresAt: 500,
+                expiresAt: '2021-02-11T16:25:09.099+01:00',
                 _id: "sdkjsjdfsd8f8882424",
                 iv: 'iv',
             };
@@ -32,7 +32,7 @@ describe('secrets-controller', () => {
                 decreaseRemainingViews: () => 1,
             });
             mockDayjs.mockImplementation(() => ({
-                diff: jest.fn().mockImplementation(() => 1),
+                isBefore: jest.fn().mockImplementation(() => false),
             }));
             mockEncryption.decrypt.mockReturnValue('password');
             const expectedSecret = {
@@ -40,7 +40,7 @@ describe('secrets-controller', () => {
                 secretText: 'password',
                 createdAt: '2021-02-10T09:36:12+01:00Z',
                 remainingViews: 10,
-                expiresAt: 500
+                expiresAt: '2021-02-11T16:25:09.099+01:00'
             };
 
             mockRequest = {
@@ -75,7 +75,7 @@ describe('secrets-controller', () => {
                 secretText: '123abc',
                 createdAt: '2021-02-10T09:36:12+01:00Z',
                 remainingViews: 11,
-                expiresAt: 500,
+                expiresAt: '2021-02-11T16:25:09.099+01:00',
                 _id: "sdkjsjdfsd8f8882424",
                 iv: 'iv',
             }
@@ -83,7 +83,8 @@ describe('secrets-controller', () => {
                 getSecretByHash: () => secretFromDB,
             });
             mockDayjs.mockImplementation(() => ({
-                diff: jest.fn().mockImplementation(() => 1000),
+                isBefore: jest.fn().mockImplementation(() => true),
+                
             }));
             mockRequest = {
                 params: {
@@ -102,7 +103,7 @@ describe('secrets-controller', () => {
                 secretText: '123abc',
                 createdAt: '2021-02-10T09:36:12+01:00Z',
                 remainingViews: 0,
-                expiresAt: 500,
+                expiresAt: '2021-02-11T16:25:09.099+01:00',
                 _id: "sdkjsjdfsd8f8882424",
                 iv: 'iv',
             }
@@ -137,8 +138,13 @@ describe('secrets-controller', () => {
             mockSecret.mockReturnValue({
                 insertSecret: () => 1,
             });
+            mockAdd = jest.fn();
+            mockAdd.mockReturnValue({
+                format: () => '2021-02-11T16:25:09.099+01:00'
+            })
             mockDayjs.mockImplementation(() => ({
-                format: jest.fn().mockImplementation(() => '2020-12-12 10:12:12'),
+                add: mockAdd,
+                format: () => '2021-02-11T16:20:09.099+01:00',
             }));
             mockEncryption.encrypt.mockReturnValue({
                 iv: 'iv',
@@ -146,17 +152,17 @@ describe('secrets-controller', () => {
             });
             const expectedSecret = {
                 hash: expect.any(String),
-                secretText: '123qwe',
-                createdAt: '2020-12-12 10:12:12',
+                secretText: '1234',
+                createdAt: '2021-02-11T16:20:09.099+01:00',
                 remainingViews: 15,
-                expiresAt: 500
+                expiresAt: '2021-02-11T16:25:09.099+01:00'
             };
 
             mockRequest = {
                 body: {
                     secret: "1234",
                     expireAfterViews: "15",
-                    expireAfter: "500"
+                    expireAfter: "5"
                 }
             };
 
