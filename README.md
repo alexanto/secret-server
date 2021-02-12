@@ -10,8 +10,6 @@ Prerequisites:
 
 Running the application:
 
-1. Run using docker-compose:
-
 Create a `.env` file with the following content:
 
 ```
@@ -21,6 +19,8 @@ MONGO_PWD="secret-server"
 DB_NAME="secrets"
 ENCRYPT_KEY="19629fd68202d34dcb79c66de2477eb6"
 ```
+
+1. Run using docker-compose:
 
 From the project root folder, run:
 
