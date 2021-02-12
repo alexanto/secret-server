@@ -36,10 +36,12 @@ Note: Obviously, secrets should NOT be in the readme, I am only including them h
 From the project root run:
 
 ```
+# run the frontend:
 cd secret-client
 npm i
 npm run serve
-cd ..
+
+# run the server:
 cd server
 npm i
 npm start
